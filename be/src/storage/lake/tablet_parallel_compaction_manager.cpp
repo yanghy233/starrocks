@@ -698,8 +698,8 @@ StatusOr<int> TabletParallelCompactionManager::create_parallel_tasks(
                                                                       max_bytes, std::move(callback), release_token));
 
     // Step 4: Submit subtasks
-    return submit_subtasks_from_groups(std::move(state_ptr), std::move(subtask_groups), force_base_compaction,
-                                       thread_pool, acquire_token, release_token);
+    return submit_subtasks_from_groups(state_ptr, std::move(subtask_groups), force_base_compaction, thread_pool,
+                                       acquire_token, release_token);
 }
 
 std::shared_ptr<TabletParallelCompactionState> TabletParallelCompactionManager::get_tablet_state(int64_t tablet_id,
@@ -1327,7 +1327,7 @@ void TabletParallelCompactionManager::execute_subtask(int64_t tablet_id, int64_t
         return;
     }
 
-    auto compaction_task = compaction_task_or.value();
+    const auto& compaction_task = compaction_task_or.value();
 
     // Increment runs counter to track that this subtask has actually started execution.
     // This is important for list_tasks() to correctly display the profile for completed subtasks,
@@ -1393,7 +1393,7 @@ Status TabletParallelCompactionManager::execute_sst_compaction_for_parallel(
         return Status::OK(); // Don't fail the entire compaction for SST compaction failure
     }
 
-    auto tablet = tablet_or.value();
+    const auto& tablet = tablet_or.value();
     const auto& metadata = tablet.metadata();
 
     // Check if this is a primary key table with cloud native persistent index
@@ -2060,7 +2060,7 @@ void TabletParallelCompactionManager::execute_subtask_segment_range(int64_t tabl
         return;
     }
 
-    auto compaction_task = compaction_task_or.value();
+    const auto& compaction_task = compaction_task_or.value();
     context->runs.fetch_add(1, std::memory_order_relaxed);
 
     // Execute compaction
